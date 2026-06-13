@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Voting RSA & Blockchain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900 via-slate-950 to-black">
+
+<div class="w-full max-w-xl bg-slate-950 rounded-2xl shadow-2xl border border-slate-800 overflow-hidden backdrop-blur-md bg-opacity-80">
+    <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-6 text-center border-b border-slate-800 shadow-lg">
+        <h2 class="text-2xl font-black text-white tracking-wider flex justify-center items-center gap-2">
+            <span>🗳️</span> HỆ THỐNG BẦU CỬ ĐIỆN TỬ
+        </h2>
+        <p class="text-xs text-blue-200 mt-1 uppercase tracking-widest font-semibold">Tích hợp Blockchain & Ký số RSA</p>
+    </div>
+
+    <div class="p-6 space-y-6">
+        <!-- Hộp thông báo hệ thống -->
+        <div id="messageBox" class="hidden p-4 rounded-xl border text-sm font-medium transition-all duration-300"></div>
+
+        <!-- CỔNG CHƯA ĐĂNG NHẬP -->
+        <div id="loginSection" class="space-y-4">
+            <h3 class="text-lg font-bold text-slate-300 border-b border-slate-800 pb-2">🔑 Đăng nhập</h3>
+            <div class="space-y-3">
+                <input type="text" id="username" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm" placeholder="Tài khoản (voter01, auditor01, admin01)">
+                <input type="password" id="password" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm" placeholder="Mật khẩu (123456)">
+                <button onclick="login()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all">Đăng nhập</button>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-800">
+                <h4 class="text-sm font-bold text-slate-400 mb-2">Tra cứu biên nhận công khai (Không cần ĐN)</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="receiptHash" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs" placeholder="Nhập mã Vote Hash...">
+                    <button onclick="checkReceipt()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs font-bold">Tra cứu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỔNG CỬ TRI (VOTER SECTION) -->
+        <div id="voterSection" class="hidden space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-lg font-bold text-slate-300">🗳️ Bỏ Phiếu Kín (Ký RSA)</h3>
+                <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg">Đăng xuất</button>
+            </div>
+            <div id="votingTimerBox" class="bg-slate-900 p-3 rounded-lg border border-slate-700 text-center hidden">
+                <p class="text-sm text-slate-400" id="votingTimerLabel">Trạng thái hòm phiếu:</p>
+                <p class="text-2xl font-mono font-bold text-emerald-400 mt-1" id="votingTimerDisplay">Đang tải...</p>
+            </div>
+
+            <p class="text-sm text-slate-400 text-center">Xem kỹ lý lịch ứng viên trước khi bầu chọn.</p>
+
+            <!-- Danh sách profile ứng viên nạp từ DB -->
+            <div id="candidatesList" class="space-y-3 mb-4 max-h-72 overflow-y-auto pr-2 custom-scrollbar"></div>
+
+            <!-- Khung chọn và nút bỏ phiếu -->
+            <select id="candidateSelect" class="w-full p-3 rounded bg-slate-800 text-white border border-slate-600 focus:outline-none focus:border-indigo-500 text-sm">
+                <option value="">-- Chọn ứng cử viên để bỏ phiếu --</option>
+            </select>
+            <button id="voteBtn" onclick="submitVote()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all">
+                Bỏ phiếu & Ký RSA
+            </button>
+        </div>
+
+        <!-- CỔNG KIỂM TOÁN VIÊN (AUDITOR SECTION) -->
+        <div id="auditorSection" class="hidden space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-lg font-bold text-amber-400">🔍 Cổng Kiểm Toán</h3>
+                <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg">Đăng xuất</button>
+            </div>
+            <button onclick="runAuditorCheck()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all">Xác minh Toàn vẹn & Chữ ký RSA</button>
+
+            <h4 class="text-sm font-bold text-slate-300 mt-4">Kết quả hiện tại:</h4>
+            <button onclick="fetchResults()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm mb-2">Tải kết quả</button>
+            <div id="resultsTable" class="text-sm text-slate-400 bg-slate-900 p-3 rounded-lg font-mono min-h-[40px]"></div>
+        </div>
+
+        <!-- CỔNG QUẢN TRỊ VIÊN (ADMIN SECTION) -->
+        <div id="adminSection" class="hidden space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-lg font-bold text-rose-500">⚙️ Quản trị (Admin)</h3>
+                <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg">Đăng xuất</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="toggleElection()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all">Bật/Tắt Bầu Cử</button>
+                <button onclick="adminResetSystem()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all">Xóa Data Hòm Phiếu</button>
+            </div>
+
+            <!-- Cấu hình thời gian -->
+            <div class="p-4 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+                <h4 class="text-sm font-bold text-indigo-300">⏰ Cài đặt Lịch Bầu Cử</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] text-slate-400">Thời gian mở:</label>
+                        <input type="datetime-local" id="startTime" class="w-full p-2 text-xs rounded bg-slate-900 border border-slate-600 text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400">Thời gian đóng:</label>
+                        <input type="datetime-local" id="endTime" class="w-full p-2 text-xs rounded bg-slate-900 border border-slate-600 text-white focus:outline-none">
+                    </div>
+                </div>
+                <button onclick="setElectionTime()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded text-xs font-bold transition mt-1">Cập Nhật Thời Gian</button>
+            </div>
+
+            <!-- Thêm / Sửa ứng cử viên -->
+            <div class="p-4 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+                <h4 id="formTitle" class="text-sm font-bold text-emerald-300">👤 Thêm Ứng Cử Viên Mới</h4>
+                <div class="space-y-2 text-xs">
+                    <input type="text" id="candName" placeholder="Tên ứng viên (*Bắt buộc)" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white outline-none">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="candParty" placeholder="Đảng phái / Đơn vị" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white">
+                        <input type="date" id="candDOB" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white">
+                    </div>
+                    <input type="text" id="candPos" placeholder="Chức vụ hiện tại" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white">
+                    <input type="text" id="candEdu" placeholder="Trình độ học vấn" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white">
+                    <input type="text" id="candImage" placeholder="URL Link Ảnh (Bắt đầu bằng http...)" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white">
+                    <textarea id="candDetails" placeholder="Tiểu sử / Thông tin chi tiết..." rows="2" class="w-full p-2 rounded bg-slate-900 border border-slate-600 text-white resize-none"></textarea>
+
+                    <div id="formActions" class="space-y-2">
+                        <button id="submitCandBtn" onclick="addCandidate()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-2 rounded font-bold transition mt-1">Xác nhận Thêm</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách quản lý ứng viên dành riêng cho Admin -->
+            <div class="p-4 bg-slate-800 rounded-lg border border-slate-700 space-y-2">
+                <h4 class="text-sm font-bold text-amber-400">📋 Danh Sách Quản Lý Ứng Viên</h4>
+                <div id="adminCandidatesList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:8000';
+    let currentToken = "";
+    let editingCandidateId = null; // Quản lý ID ứng viên đang được chỉnh sửa
+    let globalCandidatesData = []; // Lưu trữ cache danh sách ứng viên từ DB
+
+    function showMessage(text, isError = false) {
+        const box = document.getElementById('messageBox');
+        box.classList.remove('hidden', 'bg-emerald-950', 'text-emerald-400', 'border-emerald-800', 'bg-rose-950', 'text-rose-400', 'border-rose-800');
+        if (isError) box.classList.add('bg-rose-950', 'text-rose-400', 'border-rose-800');
+        else box.classList.add('bg-emerald-950', 'text-emerald-400', 'border-emerald-800');
+        box.innerHTML = text;
+        box.style.display = 'block';
+    }
+
+    async function login() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        try {
+            const res = await fetch(`${API_BASE}/login`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json();
+            if (!res.ok) return showMessage("🚨 " + data.detail, true);
+
+            currentToken = data.access_token;
+            document.getElementById('loginSection').classList.add('hidden');
+
+            if (data.role === 'voter') {
+                document.getElementById('voterSection').classList.remove('hidden');
+                const voteBtn = document.getElementById('voteBtn');
+                voteBtn.disabled = false;
+                voteBtn.innerText = "Bỏ phiếu & Ký RSA";
+                voteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                loadCandidates();
+                fetchElectionStatusAndStartTimer();
+            } else if (data.role === 'auditor') {
+                document.getElementById('auditorSection').classList.remove('hidden');
+            } else if (data.role === 'admin') {
+                document.getElementById('adminSection').classList.remove('hidden');
+                resetCandidateForm(); // Đưa form về mặc định
+                loadCandidates();     // Nạp dữ liệu vào cấu trúc quản lý của Admin
+            }
+            showMessage(`👋 Đăng nhập thành công với quyền: <strong>${data.role.toUpperCase()}</strong>`, false);
+        } catch (e) { showMessage("🚨 Lỗi kết nối Backend!", true); }
+    }
+
+    async function logout() {
+        if (currentToken) {
+            try {
+                await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+            } catch (error) {
+                console.error("Không thể kết nối Backend để hủy Token:", error);
+            }
+        }
+        currentToken = "";
+        ['voterSection', 'auditorSection', 'adminSection'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('username').value = "";
+        document.getElementById('password').value = "";
+        document.getElementById('messageBox').style.display = 'none';
+        document.getElementById('messageBox').classList.add('hidden');
+    }
+
+    async function loadCandidates() {
+        try {
+            const res = await fetch(`${API_BASE}/candidates`);
+            const data = await res.json();
+            globalCandidatesData = data; // Cập nhật dữ liệu lưu trữ toàn cục
+
+            const listContainer = document.getElementById('candidatesList');
+            const select = document.getElementById('candidateSelect');
+            const adminListContainer = document.getElementById('adminCandidatesList');
+
+            // 1. Giao diện cho Cử tri (Voter)
+            if (listContainer && select) {
+                listContainer.innerHTML = "";
+                select.innerHTML = "<option value=''>-- Chọn ứng cử viên để bỏ phiếu --</option>";
+
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `Bầu cho: ${c.name} - ${c.party}`;
+                    select.appendChild(opt);
+
+                    const defaultImg = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                    const imgUrl = c.image_url ? c.image_url : defaultImg;
+
+                    const card = document.createElement('div');
+                    card.className = "flex bg-slate-800 p-3 rounded-lg border border-slate-700 items-start gap-4 transition hover:bg-slate-700";
+                    card.innerHTML = `
+                        <img src="${imgUrl}" alt="${c.name}" class="w-20 h-24 object-cover rounded shadow-md border border-slate-600 bg-slate-200">
+                        <div class="text-sm space-y-1 flex-1 text-left">
+                            <p class="font-bold text-lg text-indigo-300">${c.name} <span class="text-xs text-slate-400 font-normal">(${c.party})</span></p>
+                            <p class="text-slate-300">📅 <span class="text-slate-400">Sinh:</span> ${c.dob || 'Đang cập nhật'}</p>
+                            <p class="text-slate-300">💼 <span class="text-slate-400">Chức vụ:</span> ${c.position || 'Đang cập nhật'}</p>
+                            <p class="text-slate-300">🎓 <span class="text-slate-400">Học vấn:</span> ${c.education || 'Đang cập nhật'}</p>
+                            <p class="text-xs text-slate-400 mt-2 italic bg-slate-900 p-2 rounded">"${c.details || 'Chưa có thông tin...'}"</p>
+                        </div>
+                    `;
+                    listContainer.appendChild(card);
+                });
+            }
+
+            // 2. Giao diện quản lý Danh sách ứng viên cho Admin
+            if (adminListContainer) {
+                adminListContainer.innerHTML = "";
+                if (data.length === 0) {
+                    adminListContainer.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-2">Chưa có ứng cử viên nào.</p>`;
+                }
+                data.forEach(c => {
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-800 text-xs";
+                    row.innerHTML = `
+                        <div class="text-left">
+                            <p class="font-bold text-slate-300">${c.name} <span class="text-[10px] text-slate-500">(${c.party})</span></p>
+                            <p class="text-[10px] text-slate-400 truncate max-w-[280px]">${c.position || 'Không giữ chức vụ'}</p>
+                        </div>
+                        <button onclick="setupEditForm(${c.id})" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-1 px-2.5 rounded transition">
+                            ✏️ Sửa
+                        </button>
+                    `;
+                    adminListContainer.appendChild(row);
+                });
+            }
+        } catch (e) { showMessage("🚨 Không thể tải danh sách ứng viên!", true); }
+    }
+
+    // Nạp dữ liệu ứng viên được chọn lên Form để chỉnh sửa
+    function setupEditForm(id) {
+        const cand = globalCandidatesData.find(c => c.id === id);
+        if (!cand) return;
+
+        editingCandidateId = id;
+        document.getElementById('formTitle').innerText = "✏️ Chỉnh Sửa Thông Tin Ứng Viên";
+        document.getElementById('formTitle').className = "text-sm font-bold text-amber-400";
+
+        let countdownInterval = null;
+        let timeoutSequence = null;
+
+        // Hàm kích hoạt hiển thị Modal đếm ngược 5 phút
+        function handleTokenExpired() {
+            // Nếu modal đang hiển thị rồi thì không chạy lại
+            const modal = document.getElementById('timeoutModal');
+            if (!modal.classList.contains('hidden')) return;
+
+            modal.classList.remove('hidden');
+            let timeLeft = 300; // 5 phút = 300 giây
+
+            const timerDisplay = document.getElementById('countdownTimer');
+
+            // Xóa các bộ đếm cũ nếu có trùng lặp
+            clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+
+                // Định dạng hiển thị mm:ss
+                let minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let seconds = (timeLeft % 60).toString().padStart(2, '0');
+                timerDisplay.innerText = `${minutes}:${seconds}`;
+
+                // Hết 5 phút tự động đăng xuất
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    forceLogoutNow();
+                }
+            }, 1000);
+        }
+
+        // Bấm nút: Kéo dài phiên làm việc
+        async function extendSession() {
+            // Giấu modal đi trước
+            document.getElementById('timeoutModal').classList.add('hidden');
+            clearInterval(countdownInterval);
+
+            // Mẹo thực tế: Bản chất của việc "Kéo dài" là lấy tài khoản/mật khẩu hiện tại đăng nhập lại ngầm
+            // Hoặc nếu Backend của bạn có API /refresh_token thì gọi ở đây.
+            // Giải pháp nhanh nhất là yêu cầu Admin đăng nhập lại để nhận Token mới:
+            showMessage("🔑 Vui lòng nhập lại thông tin để gia hạn Token bảo mật.", false);
+            logout();
+        }
+
+        // Bấm nút: Thoát chủ động hoặc hết thời gian tự logout
+        function forceLogoutNow() {
+            document.getElementById('timeoutModal').classList.add('hidden');
+            clearInterval(countdownInterval);
+            logout();
+            showMessage("🚪 Bạn đã đăng xuất an toàn khỏi hệ thống.", false);
+        }
+
+        // Gắn dữ liệu vào Form
+        document.getElementById('candName').value = cand.name || '';
+        document.getElementById('candParty').value = cand.party || '';
+        document.getElementById('candPos').value = cand.position || '';
+        document.getElementById('candEdu').value = cand.education || '';
+        document.getElementById('candImage').value = cand.image_url || '';
+        document.getElementById('candDetails').value = cand.details || '';
+
+        // Định dạng ngày thành YYYY-MM-DD để khớp với thẻ <input type="date">
+        if (cand.dob) {
+            const parts = cand.dob.split('/');
+            if (parts.length === 3) {
+                document.getElementById('candDOB').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+        } else {
+            document.getElementById('candDOB').value = '';
+        }
+
+        // Đổi nút thêm mới thành bộ đôi nút: "Cập nhật" và "Hủy"
+        const actionsContainer = document.getElementById('formActions');
+        actionsContainer.innerHTML = `
+            <div class="grid grid-cols-2 gap-2 mt-1">
+                <button onclick="submitUpdateCandidate()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded transition">Lưu Thay Đổi</button>
+                <button onclick="resetCandidateForm()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2 rounded transition">Hủy Chế Độ Sửa</button>
+            </div>
+        `;
+    }
+
+    // Reset Form về chế độ "Thêm mới" ban đầu
+    function resetCandidateForm() {
+        editingCandidateId = null;
+        document.getElementById('formTitle').innerText = "👤 Thêm Ứng Cử Viên Mới";
+        document.getElementById('formTitle').className = "text-sm font-bold text-emerald-300";
+
+        ['candName', 'candParty', 'candDOB', 'candPos', 'candEdu', 'candImage', 'candDetails']
+            .forEach(id => document.getElementById(id).value = '');
+
+        document.getElementById('formActions').innerHTML = `
+            <button id="submitCandBtn" onclick="addCandidate()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-2 rounded font-bold transition mt-1">Xác nhận Thêm</button>
+        `;
+    }
+
+    // Gửi request cập nhật thông tin (PUT) lên Backend
+    async function submitUpdateCandidate() {
+        if (!editingCandidateId) return;
+
+        const payload = {
+            name: document.getElementById('candName').value.trim(),
+            party: document.getElementById('candParty').value.trim() || "Độc lập",
+            image_url: document.getElementById('candImage').value.trim(),
+            dob: document.getElementById('candDOB').value,
+            position: document.getElementById('candPos').value.trim(),
+            education: document.getElementById('candEdu').value.trim(),
+            details: document.getElementById('candDetails').value.trim()
+        };
+
+        if (!payload.name) return showMessage("Vui lòng nhập tên ứng viên!", true);
+
+        try {
+            const res = await fetch(`${API_BASE}/candidates/${editingCandidateId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            // CHÈN THÊM ĐOẠN KIỂM TRA NÀY:
+            if (res.status === 401 || data.detail === "Token đã hết hạn!") {
+                handleTokenExpired();
+                return;
+            }
+
+            showMessage(res.ok ? "✨ " + data.message : "🚨 " + data.detail, !res.ok);
+            if (res.ok) {
+                resetCandidateForm();
+                loadCandidates(); // Tải lại danh sách ứng viên mới cập nhật
+            }
+        } catch (error) { showMessage("🚨 Lỗi kết nối hệ thống khi cập nhật!", true); }
+
+
+    }
+
+    async function submitVote() {
+        const candidateId = document.getElementById('candidateSelect').value;
+        if(!candidateId) return showMessage("Vui lòng chọn ứng cử viên!", true);
+
+        try {
+            const res = await fetch(`${API_BASE}/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify({ candidate_id: parseInt(candidateId) })
+            });
+            const data = await res.json();
+
+            if(res.ok) {
+                const msg = `✅ ${data.message}<br><br><strong>MÃ TRA CỨU CỦA BẠN (Hãy lưu lại):</strong><br><span class="text-xs font-mono bg-slate-900 p-1 rounded select-all break-all block mt-1">${data.receipt}</span>`;
+                showMessage(msg, false);
+
+                document.getElementById('voteBtn').disabled = true;
+                document.getElementById('voteBtn').innerText = "Đã thực hiện bỏ phiếu";
+                document.getElementById('voteBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                showMessage("🚨 " + data.detail, true);
+            }
+        } catch (error) { showMessage("🚨 Lỗi kết nối đến máy chủ!", true); }
+    }
+
+    async function runAuditorCheck() {
+        try {
+            const res = await fetch(`${API_BASE}/audit_votes`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            const data = await res.json();
+            if(!res.ok) return showMessage("🚨 " + data.detail, true);
+
+            if (data.status === "DANGER") showMessage(`⚠️ <strong>GIAN LẬN:</strong><br>${data.message}`, true);
+            else showMessage(`✅ ${data.message}`, false);
+        } catch (e) { showMessage("🚨 Lỗi kết nối", true); }
+    }
+
+    async function fetchResults() {
+        try {
+            const res = await fetch(`${API_BASE}/results`);
+            const data = await res.json();
+            document.getElementById('resultsTable').innerHTML = data.map(d => `📊 ${d.name}: <span class="text-indigo-400 font-bold">${d.votes}</span> phiếu`).join('<br>');
+        } catch(e) { showMessage("🚨 Lỗi lấy kết quả bầu cử!", true); }
+    }
+
+    async function toggleElection() {
+        try {
+            const res = await fetch(`${API_BASE}/election/toggle`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            const data = await res.json();
+            showMessage("⚡ " + data.message, false);
+        } catch(e) { showMessage("🚨 Lỗi kết nối mạng!", true); }
+    }
+
+    async function adminResetSystem() {
+        if(!confirm("CẢNH BÁO: Bạn chắc chắn muốn xóa sạch hòm phiếu để chạy lại từ đầu?")) return;
+        try {
+            const res = await fetch(`${API_BASE}/reset_system`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            const data = await res.json();
+            showMessage("🧹 " + data.message, false);
+        } catch(e) { showMessage("🚨 Thao tác thất bại!", true); }
+    }
+
+    async function checkReceipt() {
+        const hash = document.getElementById('receiptHash').value.trim();
+        if(!hash) return showMessage("Vui lòng nhập mã băm biên nhận!", true);
+        try {
+            const res = await fetch(`${API_BASE}/receipt/${hash}`);
+            const data = await res.json();
+            if(res.ok) showMessage(`✅ ${data.message}`, false);
+            else showMessage(`🚨 ${data.detail}`, true);
+        } catch(e) { showMessage("🚨 Lỗi tra cứu hệ thống!", true); }
+    }
+
+    async function setElectionTime() {
+        const st = document.getElementById('startTime').value;
+        const et = document.getElementById('endTime').value;
+        if(!st || !et) return showMessage("Vui lòng chọn đầy đủ thời gian mở và đóng!", true);
+
+        try {
+            const res = await fetch(`${API_BASE}/election/schedule`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify({ start_time: st, end_time: et })
+            });
+            const data = await res.json();
+            showMessage(res.ok ? "📅 " + data.message : "🚨 " + data.detail, !res.ok);
+        } catch (error) { showMessage("🚨 Lỗi kết nối đến máy chủ!", true); }
+    }
+
+    async function addCandidate() {
+        const payload = {
+            name: document.getElementById('candName').value.trim(),
+            party: document.getElementById('candParty').value.trim() || "Độc lập",
+            image_url: document.getElementById('candImage').value.trim(),
+            dob: document.getElementById('candDOB').value,
+            position: document.getElementById('candPos').value.trim(),
+            education: document.getElementById('candEdu').value.trim(),
+            details: document.getElementById('candDetails').value.trim()
+        };
+
+        if(!payload.name) return showMessage("Vui lòng nhập tên ứng viên!", true);
+
+        try {
+            const res = await fetch(`${API_BASE}/candidates`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.status === 401 || data.detail === "Token đã hết hạn!") {
+                handleTokenExpired();
+                return;
+            }
+            showMessage(res.ok ? "✨ " + data.message : "🚨 " + data.detail, !res.ok);
+            if(res.ok) {
+                ['candName', 'candParty', 'candDOB', 'candPos', 'candEdu', 'candImage', 'candDetails']
+                    .forEach(id => document.getElementById(id).value = '');
+                loadCandidates(); // Đồng bộ lại danh sách của Admin
+            }
+        } catch (error) { showMessage("🚨 Lỗi kết nối máy chủ!", true); }
+    }
+
+    let globalElectionTimer = null;
+
+    async function fetchElectionStatusAndStartTimer() {
+        try {
+            const res = await fetch(`${API_BASE}/election/status`);
+            if (res.ok) {
+                const status = await res.json();
+                startElectionCountdown(status);
+            }
+        } catch (e) { console.error("Lỗi lấy trạng thái bầu cử:", e); }
+    }
+
+    function startElectionCountdown(status) {
+        clearInterval(globalElectionTimer);
+        const timerBox = document.getElementById('votingTimerBox');
+        const timerLabel = document.getElementById('votingTimerLabel');
+        const timerDisplay = document.getElementById('votingTimerDisplay');
+        const voteBtn = document.getElementById('voteBtn');
+
+        if (!timerBox) return;
+        timerBox.classList.remove('hidden');
+
+        // Nếu Admin tắt hòm phiếu thủ công
+        if (!status.is_active) {
+            timerLabel.innerText = "Trạng thái hòm phiếu:";
+            timerDisplay.innerText = "🔴 ĐÃ KHÓA THỦ CÔNG";
+            timerDisplay.className = "text-xl font-mono font-bold text-rose-500 mt-1";
+            disableVoteButton(voteBtn);
+            return;
+        }
+
+        const startTime = status.start_time ? new Date(status.start_time).getTime() : 0;
+        const endTime = status.end_time ? new Date(status.end_time).getTime() : Infinity;
+
+        globalElectionTimer = setInterval(() => {
+            const now = new Date().getTime();
+
+            if (startTime > 0 && now < startTime) {
+                // CHƯA BẮT ĐẦU
+                timerLabel.innerText = "⏳ Bầu cử sẽ mở sau:";
+                timerDisplay.innerText = formatTime(startTime - now);
+                timerDisplay.className = "text-2xl font-mono font-bold text-amber-400 mt-1";
+                disableVoteButton(voteBtn);
+
+            } else if (now >= startTime && now <= endTime) {
+                // ĐANG DIỄN RA
+                timerLabel.innerText = "✅ Đang mở! Sẽ đóng hòm phiếu sau:";
+                timerDisplay.innerText = formatTime(endTime - now);
+                timerDisplay.className = "text-2xl font-mono font-bold text-emerald-400 mt-1";
+
+                // Bật lại nút vote nếu người dùng chưa bầu
+                if(voteBtn && voteBtn.innerText.includes("Ký RSA")) {
+                    voteBtn.disabled = false;
+                    voteBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'from-slate-600', 'to-slate-700');
+                }
+
+            } else {
+                // ĐÃ KẾT THÚC
+                timerLabel.innerText = "Trạng thái hòm phiếu:";
+                timerDisplay.innerText = "🛑 ĐÃ KẾT THÚC";
+                timerDisplay.className = "text-2xl font-mono font-bold text-rose-500 mt-1";
+                disableVoteButton(voteBtn);
+                clearInterval(globalElectionTimer);
+            }
+        }, 1000);
+    }
+
+    function disableVoteButton(btn) {
+        if(btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed', 'from-slate-600', 'to-slate-700');
+        }
+    }
+
+    function formatTime(ms) {
+        const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+        let h = hours.toString().padStart(2, '0');
+        let m = minutes.toString().padStart(2, '0');
+        let s = seconds.toString().padStart(2, '0');
+
+        if (days > 0) return `${days} ngày ${h}:${m}:${s}`;
+        return `${h}:${m}:${s}`;
+    }
+
+</script>
+<div id="timeoutModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div class="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-6 text-center space-y-4">
+        <div class="text-4xl">⏳</div>
+        <h3 class="text-lg font-bold text-amber-400">Phiên làm việc đã hết hạn</h3>
+        <p class="text-sm text-slate-300">
+            Hệ thống sẽ tự động đăng xuất sau: <br>
+            <span id="countdownTimer" class="text-xl font-mono font-bold text-rose-500">05:00</span>
+        </p>
+        <p class="text-xs text-slate-400">Bạn có muốn tiếp tục duy trì quyền đăng nhập không?</p>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+            <button onclick="extendSession()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all shadow-lg">
+                🔄 Kéo dài phiên
+            </button>
+            <button onclick="forceLogoutNow()" class="bg-slate-800 hover:bg-rose-700 text-slate-300 hover:text-white py-2 px-4 rounded-xl text-xs transition-all">
+                🚪 Thoát
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

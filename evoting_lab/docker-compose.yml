@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:15
+    container_name: evoting_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: evoting
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - secure_network
+    # Đã xóa maps port 5433:5432 ra host để đảm bảo NFR-02 (Database Isolation)
+
+  backend:
+    image: python:3.10-slim
+    container_name: evoting_backend
+    volumes:
+      - .:/app
+    working_dir: /app/backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - secure_network
+    environment:
+      - DB_HOST=db
+      - DB_USER=admin
+      - DB_PASS=secretpassword
+      - DB_NAME=evoting
+      - JWT_SECRET=SUP3R_S3CR3T_K3Y_256BIT_R4NDOM_G3N3R4T3D # NFR-05
+    command: bash -c "pip install -r ../requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+networks:
+  secure_network:
+    driver: bridge

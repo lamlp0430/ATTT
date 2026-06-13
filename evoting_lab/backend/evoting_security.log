@@ -1,0 +1,107 @@
+2026-06-11 18:25:04,031 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:25:06,054 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:25:08,977 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:25:09,303 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:25:09,524 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:25:09,698 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:25:36,641 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-11 18:25:44,097 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-11 18:36:07,543 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:36:36,860 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:36:49,514 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:38:54,467 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:38:56,843 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-11 18:38:57,360 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-11 18:38:57,984 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-11 18:39:13,813 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-11 18:44:48,074 - INFO - User voter01 logged in successfully.
+2026-06-11 18:44:52,773 - INFO - Voter voter01 cast a vote. Hash: 7862e31319709dbc9b3d7890622a113daf1ad9aa3ad406a7d29439bc26fc271c
+2026-06-11 18:45:06,401 - INFO - User voter01 logged out.
+2026-06-11 18:45:34,809 - INFO - User auditor01 logged in successfully.
+2026-06-11 18:46:33,882 - INFO - User auditor01 logged out.
+2026-06-11 18:46:44,198 - INFO - User admin01 logged in successfully.
+2026-06-11 18:46:52,624 - INFO - Admin toggled election status to False
+2026-06-11 18:46:53,714 - INFO - Admin toggled election status to True
+2026-06-11 18:46:57,722 - INFO - User admin01 logged out.
+2026-06-11 18:52:58,850 - INFO - User auditor01 logged in successfully.
+2026-06-11 18:59:45,936 - INFO - User auditor01 logged out.
+2026-06-11 18:59:54,967 - INFO - User admin01 logged in successfully.
+2026-06-11 19:00:01,137 - WARNING - Admin admin01 reset the entire system.
+2026-06-11 19:00:02,966 - INFO - User admin01 logged out.
+2026-06-12 04:53:12,674 - INFO - User voter01 logged in successfully.
+2026-06-12 05:36:07,637 - INFO - User voter01 logged in successfully.
+2026-06-12 05:36:41,645 - INFO - User voter01 logged in successfully.
+2026-06-12 05:36:53,734 - INFO - User auditor01 logged in successfully.
+2026-06-12 05:37:12,467 - INFO - User admin01 logged in successfully.
+2026-06-12 06:08:05,541 - INFO - User voter01 logged in successfully.
+2026-06-12 07:04:36,468 - INFO - User voter01 logged in successfully.
+2026-06-12 07:06:03,869 - INFO - User voter01 logged in successfully.
+2026-06-12 07:06:13,246 - INFO - User admin01 logged in successfully.
+2026-06-12 07:23:21,210 - INFO - User voter01 logged in successfully.
+2026-06-12 07:24:05,622 - INFO - User voter01 logged in successfully.
+2026-06-12 07:32:01,402 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 07:32:07,809 - INFO - User voter01 logged in successfully.
+2026-06-12 07:34:17,591 - INFO - User admin01 logged in successfully.
+2026-06-12 07:34:46,307 - INFO - User auditor01 logged in successfully.
+2026-06-12 07:35:38,648 - INFO - User admin01 logged in successfully.
+2026-06-12 07:37:49,094 - INFO - Admin admin01 added a new candidate: Độ Mixi
+2026-06-12 07:37:57,943 - INFO - User voter01 logged in successfully.
+2026-06-12 07:38:48,880 - INFO - User admin01 logged in successfully.
+2026-06-12 07:40:50,877 - INFO - User voter01 logged in successfully.
+2026-06-12 07:45:15,880 - INFO - User admin01 logged in successfully.
+2026-06-12 07:48:49,490 - INFO - Admin admin01 added a new candidate: Đặng Thanh Quang
+2026-06-12 07:48:56,605 - INFO - User voter01 logged in successfully.
+2026-06-12 08:42:51,916 - INFO - User voter01 logged in successfully.
+2026-06-12 08:43:03,611 - INFO - User auditor01 logged in successfully.
+2026-06-12 08:43:16,063 - INFO - User admin01 logged in successfully.
+2026-06-12 08:43:59,646 - INFO - User auditor01 logged in successfully.
+2026-06-12 08:46:47,713 - INFO - User voter01 logged in successfully.
+2026-06-12 08:48:41,096 - INFO - User auditor01 logged in successfully.
+2026-06-12 08:49:31,621 - INFO - User admin01 logged in successfully.
+2026-06-12 08:52:35,146 - INFO - Admin admin01 updated schedule: 2026-06-12 16:00:00 to 2026-06-13 00:00:00
+2026-06-12 15:43:51,323 - INFO - User voter01 logged in successfully.
+2026-06-12 15:44:41,848 - INFO - User admin01 logged in successfully.
+2026-06-12 15:45:07,767 - INFO - Admin admin01 updated schedule: 2026-06-12 04:00:00 to 2026-06-13 12:00:00
+2026-06-12 15:45:22,634 - INFO - User voter01 logged in successfully.
+2026-06-12 15:48:07,507 - INFO - User admin01 logged in successfully.
+2026-06-12 15:51:20,528 - INFO - Admin None đã chỉnh sửa ứng viên ID: 1
+2026-06-12 15:51:29,735 - INFO - User voter01 logged in successfully.
+2026-06-12 15:53:25,443 - INFO - User admin01 logged in successfully.
+2026-06-12 15:56:38,157 - INFO - Admin admin01 added a new candidate: Phạm Minh Chính
+2026-06-12 16:06:05,990 - INFO - User admin01 logged in successfully.
+2026-06-12 16:07:18,361 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 16:07:19,679 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 16:07:20,706 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 16:07:21,382 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 16:07:21,614 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 16:07:21,616 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-12 16:07:21,780 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-12 16:07:21,795 - WARNING - Login failed for voter01 from 172.18.0.1
+2026-06-12 16:07:21,915 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-12 16:09:25,368 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-12 16:09:26,438 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-12 16:10:02,529 - WARNING - Brute-force attempt from 172.18.0.1
+2026-06-12 16:16:12,692 - INFO - User voter01 logged in successfully.
+2026-06-12 16:17:04,503 - INFO - User voter01 logged in successfully.
+2026-06-12 16:18:07,773 - INFO - User auditor01 logged in successfully.
+2026-06-12 16:18:40,372 - WARNING - Login failed for admin01 from 172.18.0.1
+2026-06-12 16:18:45,307 - INFO - User admin01 logged in successfully.
+2026-06-12 16:19:07,127 - INFO - Admin toggled election status to False
+2026-06-12 16:19:10,525 - INFO - Admin toggled election status to True
+2026-06-12 16:19:51,007 - WARNING - Admin admin01 reset system.
+2026-06-12 16:20:01,694 - INFO - User voter01 logged in successfully.
+2026-06-12 18:42:50,370 - INFO - User admin01 logged in successfully.
+2026-06-12 18:43:54,610 - INFO - Admin admin01 updated schedule: 2026-06-13 01:40:00 to 2026-06-13 01:45:00
+2026-06-12 18:44:02,738 - INFO - User voter01 logged in successfully.
+2026-06-13 05:09:01,152 - INFO - User voter01 logged in successfully.
+2026-06-13 05:09:26,194 - INFO - User admin01 logged in successfully.
+2026-06-13 05:26:33,095 - INFO - User admin01 logged in successfully.
+2026-06-13 05:28:07,166 - INFO - Admin None đã chỉnh sửa ứng viên ID: 1
+2026-06-13 05:30:10,030 - INFO - Admin admin01 added a new candidate: Lê Minh Hưng
+2026-06-13 05:34:27,872 - INFO - Admin admin01 added a new candidate: Trần Thanh Mẫn
+2026-06-13 05:34:48,971 - INFO - Admin None đã chỉnh sửa ứng viên ID: 1
+2026-06-13 05:35:07,108 - INFO - Admin None đã chỉnh sửa ứng viên ID: 1
+2026-06-13 05:35:50,861 - INFO - Admin None đã chỉnh sửa ứng viên ID: 3
+2026-06-13 05:39:56,932 - INFO - User admin01 logged in successfully.
+2026-06-13 05:41:46,805 - INFO - Admin admin01 added a new candidate: Trần Cẩm Tú
+2026-06-13 05:42:40,237 - INFO - Admin admin01 updated schedule: 2026-06-13 12:45:00 to 2026-06-30 00:00:00
